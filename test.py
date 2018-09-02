@@ -133,13 +133,7 @@ def psnr(img1, img2):
 import time
 
 
-# NOTE training loop
-ganIterations = 0
-index=0
-psnrall = 0
-ssimall=0
-iteration = 0
-# print(1)
+
 for epoch in range(1):
   for i, data in enumerate(valDataloader, 0):
     t0 = time.time()
