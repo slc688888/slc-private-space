@@ -4,9 +4,41 @@ import numpy as np
 import torch
 from PIL import Image
 from torch.autograd import Variable
-from torch.utils.serialization import load_lua
+#from torch.utils.serialization import load_lua
 
-from myutils.vgg16 import Vgg16
+#from myutils.vgg16 import Vgg16
+import argparse
+def arg_parse():
+    """
+    Parse arguements to the detect module
+    
+    """
+    
+    
+    parser = argparse.ArgumentParser(description='YOLO v3 Detection Module')
+   
+    parser.add_argument("--images", dest = 'images', help = 
+                        "Image / Directory containing images to perform detection upon",
+                        default = "imgs", type = str)
+    parser.add_argument("--det", dest = 'det', help = 
+                        "Image / Directory to store detections to",
+                        default = "det", type = str)
+    parser.add_argument("--bs", dest = "bs", help = "Batch size", default = 3)
+    parser.add_argument("--confidence", dest = "confidence", help = "Object Confidence to filter predictions", default = 0.5)
+    parser.add_argument("--nms_thresh", dest = "nms_thresh", help = "NMS Threshhold", default = 0.4)
+    parser.add_argument("--cfg", dest = 'cfgfile', help = 
+                        "Config file",
+                        default = "cfg/yolov3.cfg", type = str)
+    parser.add_argument("--weights", dest = 'weightsfile', help = 
+                        "weightsfile",
+                        default = "yolov3.weights", type = str)
+    parser.add_argument("--reso", dest = 'reso', help = 
+                        "Input resolution of the network. Increase to increase accuracy. Decrease to increase speed",
+                        default = "512", type = str)
+    parser.add_argument("--scales", dest = "scales", help = "Scales to use for detection",
+                        default = "1,2,3", type = str)
+    
+    return parser.parse_args()
 
 def tensor_load_rgbimage(filename, size=None, scale=None, keep_asp=False):
 	img = Image.open(filename).convert('RGB')
@@ -81,14 +113,14 @@ def preprocess_batch(batch):
 	return batch
 
 
-def init_vgg16(model_folder):
-	"""load the vgg16 model feature"""
-	if not os.path.exists(os.path.join(model_folder, 'vgg16.weight')):
-		if not os.path.exists(os.path.join(model_folder, 'vgg16.t7')):
-			os.system(
-				'wget http://cs.stanford.edu/people/jcjohns/fast-neural-style/models/vgg16.t7 -O ' + os.path.join(model_folder, 'vgg16.t7'))
-		vgglua = load_lua(os.path.join(model_folder, 'vgg16.t7'))
-		vgg = Vgg16()
-		for (src, dst) in zip(vgglua.parameters()[0], vgg.parameters()):
-			dst.data[:] = src
-		torch.save(vgg.state_dict(), os.path.join(model_folder, 'vgg16.weight'))
+#def init_vgg16(model_folder):
+#	"""load the vgg16 model feature"""
+#	if not os.path.exists(os.path.join(model_folder, 'vgg16.weight')):
+#		if not os.path.exists(os.path.join(model_folder, 'vgg16.t7')):
+#			os.system(
+#				'wget http://cs.stanford.edu/people/jcjohns/fast-neural-style/models/vgg16.t7 -O ' + os.path.join(model_folder, 'vgg16.t7'))
+#		vgglua = load_lua(os.path.join(model_folder, 'vgg16.t7'))
+#		vgg = Vgg16()
+#		for (src, dst) in zip(vgglua.parameters()[0], vgg.parameters()):
+#			dst.data[:] = src
+#		torch.save(vgg.state_dict(), os.path.join(model_folder, 'vgg16.weight'))
