@@ -1,0 +1,34 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Wed Oct 24 15:09:53 2018
+
+@author: littlemonster
+"""
+
+from PIL import Image
+import colorsys    
+import os, shutil
+
+def HSVColor(img):
+    if isinstance(img,Image.Image):
+        r,g,b = img.split()
+        Hdat = []
+        Sdat = []
+        Vdat = [] 
+        for rd,gn,bl in zip(r.getdata(),g.getdata(),b.getdata()) :
+            h,s,v = colorsys.hsv_to_rgb(rd/255.,gn/255.,bl/255.)
+            Hdat.append(int(h*255.))
+            Sdat.append(int(s*255.))
+            Vdat.append(int(v*255.))
+        r.putdata(Hdat)
+        g.putdata(Sdat)
+        b.putdata(Vdat)
+        return Image.merge('RGB',(r,g,b))
+    else:
+        return None
+
+a = Image.open('/home/littlemonster/Desktop/slc-private-space-master/image_HSV/lighttest/1.jpg')
+b = HSVColor(a)
+b.save('test.jpg')
+

@@ -63,25 +63,26 @@ import glob
 #
 # while True:
 #     plt.pause(0.05)
-def array2PIL(arr, size):
-    mode = 'RGBA'
-    arr = arr.reshape(arr.shape[0]*arr.shape[1], arr.shape[2])
-    if len(arr[0]) == 3:
-        arr = np.c_[arr, 255*numpy.ones((len(arr),1), numpy.uint8)]
-    return Image.frombuffer(mode, size, arr.tostring(), 'raw', mode, 0, 1)
+#def array2PIL(arr, size):
+#    mode = 'RGBA'
+#    arr = arr.reshape(arr.shape[0]*arr.shape[1], arr.shape[2])
+#    if len(arr[0]) == 3:
+#        arr = np.c_[arr, 255*numpy.ones((len(arr),1), numpy.uint8)]
+#    return Image.frombuffer(mode, size, arr.tostring(), 'raw', mode, 0, 1)
 
 
 
 index=1
-train_list_per=glob.glob('./cvprw_test_resize_crop/*png')
-
+train_list_per=glob.glob('./RTTS/JPEGImages/*png')
+img_size=256
 # print train_list_per
 from skimage import color
-total_num=0
+total_num=1
 
 for item in train_list_per:
 
     img=misc.imread(item)
+    img = scipy.misc.imresize(img, [img_size, img_size]).astype(float)
     # img=skimage.color.rgb2luv(img)
     # zz=img.shape
     # size1=(zz[0]/2)
@@ -89,7 +90,7 @@ for item in train_list_per:
     # img=img[0:size1,:,:]
     # pdb.set_trace()
 
-    directory='./facades/test_cvpr/'
+    directory='./facades/test_ihazy/'
     if not os.path.exists(directory):
         os.makedirs(directory)
     zz=filter(str.isdigit, item)
@@ -116,17 +117,17 @@ for item in train_list_per:
     # pdb.set_trace()
 
     # h5f=h5py.File('./facades/newsyn/'+str(total_num)+'.h5','w')
-    h5f=h5py.File('./facades/test_cvpr/'+str(total_num)+'.h5','w')
+    h5f=h5py.File('./facades/test_ihazy/'+str(total_num)+'.h5','w')
 
     h5f.create_dataset('haze',data=haze_image)
     h5f.create_dataset('trans',data=gt_img)
-    h5f.create_dataset('ato',data=gt_img)
+    h5f.create_dataset('atom',data=gt_img)
     h5f.create_dataset('gt',data=gt_img)
 
-    print img.max()
-    print img.min()
+    print (img.max())
+    print (img.min())
     total_num=total_num+1
-    print total_num
+    print (total_num)
 
 
 
