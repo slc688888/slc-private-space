@@ -7,6 +7,7 @@ import glob
 import scipy.ndimage
 import colorsys 
 import h5py
+import cv2
 IMG_EXTENSIONS = [
   '.jpg', '.JPG', '.jpeg', '.JPEG',
   '.png', '.PNG', '.ppm', '.PPM', '.bmp', '.BMP',
@@ -44,39 +45,39 @@ def HSVColor(img):
     g.putdata(Sdat)
     b.putdata(Vdat)
     return Image.merge('RGB',(r,g,b))
-class pix2pix(data.Dataset):
-  def __init__(self, root, transform=None, loader=default_loader, seed=None):
-    # imgs = make_dataset(root)
-    # if len(imgs) == 0:
-    #   raise(RuntimeError("Found 0 images in subfolders of: " + root + "\n"
-    #              "Supported image extensions are: " + ",".join(IMG_EXTENSIONS)))
+class Read_Dhaze(data.Dataset):
+  def __init__(self, root,data, transform=None, loader=default_loader, seed=None):
     self.root = root
-    # self.imgs = imgs
     self.transform = transform
     self.loader = loader
+    self.data=data
 
     if seed is not None:
       np.random.seed(seed)
 
   def __getitem__(self, index):
-    f = h5py.File(self.root+str(index)+'.hdf5','r')
-    h=f['h'].value
-    s=f['s'].value
-    v = f['v'].value
-    high = f['high'].value
-    wide = f['wide'].value
-    hsv = np.concatenate((h, s, v)).reshape(3,high,wide)/255.
-#    print(index)
-#    hsv = hsv.reshape(3,high,wide)
-#    img=Image.open(self.root+str(index)+'.jpg')
-#    print(index[1])
-#    img_HSV = HSVColor(img)
+#    name=''
+#    if self.data == 'haze':
+##        name='.jpg'
+#        name='_Hazy.bmp'
+#        index=index+704
+#    else:
+#        name='_Image_.bmp'
+##        name='.jpg'
+    train_list=glob.glob(self.root+'/*.bmp')
+    train_list.sort()
+    img=Image.open(train_list[index])
+    print(train_list[index])
+#    img=Image.open(self.root+str(index+1)+name)#RGB
+#    img=Image.open(self.root+str(index)+name)#RGB
+    r,g,b= img.split()
+    bgr=Image.merge('RGB',(b,g,r))
+
     if self.transform is not None:
-      img= self.transform(hsv)
-    Light = img[2,:,:].mean()
-#    Hue = img[0,:,:]
-    return img,Light
+      img= self.transform(bgr)
+    return img
 
   def __len__(self):
-    train_list=glob.glob(self.root+'/*.hdf5')
+#    train_list=glob.glob(self.root+'/*.bmp')
+    train_list=glob.glob(self.root+'/*.bmp')
     return len(train_list)

@@ -47,17 +47,19 @@ class pix2pix_val(data.Dataset):
 
   # def __getitem__(self, _):
   def __getitem__(self, index):
-
-    img=Image.open(self.root+str(index)+'.jpg')
-    w, h = img.size
-    imgA = img.crop((0, 0, w/2, h))
-    imgB = img.crop((w/2, 0, w, h))
+    f = h5py.File(self.root+str(index)+'.hdf5','r')
+    h=f['h'].value
+    s=f['s'].value
+    v = f['v'].value
+    high = f['high'].value
+    wide = f['wide'].value
+    hsv = np.concatenate((h, s, v)).reshape(3,high,wide)/255.
     if self.transform is not None:
-      imgA, imgB = self.transform(imgA, imgB)
-    return imgB,imgA
+      img= self.transform(hsv)
+    return img
 
 
   def __len__(self):
-    train_list=glob.glob(self.root+'/*.jpg')
+    train_list=glob.glob(self.root+'/*.hdf5')
     return len(train_list)
 
